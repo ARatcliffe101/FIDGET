@@ -1,10 +1,4 @@
 # FIDGET
-Simple Invoice, Job and Contract System
-
-FIDGET is a local, desktop finance helper that watches a folder of Invoices, Jobs and Contracts, then builds an Excel-friendly CSV backend for you automatically.
-
-
-# FIDGET
 **Financial Invoice, Deal & Job Engagement Tracker**
 
 FIDGET is a local desktop app that watches a folder of **Invoices**, **Jobs** and **Contracts** and maintains an **Excel-friendly CSV backend** you can edit directly.
