@@ -1,252 +1,95 @@
-
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>FIDGET – Financial Invoice, Deal & Job Engagement Tracker</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body{font-family:Segoe UI,Arial,sans-serif;margin:16px;background:#fafafa;}
-    header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
-    h2{margin:0 0 4px 0;}
-    .muted{color:#666;font-size:12px;}
-    button{padding:8px 12px;border-radius:999px;border:1px solid #111;background:#fff;cursor:pointer;font-size:13px;}
-    button.primary{background:#111;color:#fff;}
-    button:disabled{opacity:.5;cursor:not-allowed;}
-    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-    .card{background:#fff;border-radius:16px;border:1px solid #ddd;padding:12px;margin-top:10px;}
-    .tabs{display:flex;gap:6px;margin-top:10px;}
-    .tab{padding:6px 12px;border-radius:999px;border:1px solid #ccc;background:#fff;font-size:13px;cursor:pointer;}
-    .tab.active{background:#111;color:#fff;border-color:#111;}
-    table{width:100%;border-collapse:collapse;margin-top:8px;}
-    th,td{padding:8px 6px;border-bottom:1px solid #eee;font-size:12px;text-align:left;vertical-align:top;}
-    th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#555;}
-    input,select,textarea{padding:6px 8px;border-radius:8px;border:1px solid #ccc;font-size:13px;width:100%;box-sizing:border-box;}
-    textarea{min-height:80px;}
-    .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-top:10px;}
-    @media (max-width:1100px){.grid{grid-template-columns:1fr;}}
-    .pill{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid #ddd;background:#f7f7f7;font-size:11px;}
-    .chip{display:inline-block;margin:0 4px 4px 0;padding:2px 8px;border-radius:999px;border:1px solid #ccc;background:#f9f9f9;font-size:11px;cursor:pointer;}
-    .chip:hover{background:#eee;}
-    .hidden{display:none;}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;}
-    .overlay.hidden{display:none;}
-    .overlay-panel{background:#fff;border-radius:16px;border:1px solid #ddd;padding:16px;max-width:520px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,.25);}
-    .logo{height:52px;border-radius:16px;box-shadow:0 0 18px rgba(171,71,255,0.8);}
-  </style>
+  <meta charset="UTF-8" />
+  <title>FIDGET - Financial Invoice, Deal & Job Engagement Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header>
-  <div style="display:flex;gap:12px;align-items:flex-start;">
-    <img src="assets/FIDGET.png" alt="FIDGET logo" class="logo" />
-    <div>
-      <h2>FIDGET</h2>
-      <div class="muted">Financial Invoice, Deal &amp; Job Engagement Tracker</div>
-      <div class="muted" id="rootLabel">Root: (not set)</div>
-      <div class="muted">
-        Watches <b>Invoices</b>, <b>AS</b> (Jobs), <b>Contracts</b> and writes CSVs in the root
-        (<code>invoices.csv</code>, <code>assignments.csv</code>, <code>contracts.csv</code>).
+  <header id="app-header">
+    <div class="title-block">
+      <img src="assets/FIDGET.png" alt="FIDGET logo" class="app-logo" />
+      <div class="title-text">
+        <div class="app-title">FIDGET</div>
+        <div class="app-subtitle">Financial Invoice, Deal &amp; Job Engagement Tracker</div>
       </div>
+    </div>
+    <div class="header-controls">
+      <div id="root-path-label">Root: (not set)</div>
+      <button id="btn-set-root">Set root folder…</button>
+      <button id="btn-scan">Scan now</button>
+      <button id="btn-save-all">Save all</button>
+    </div>
+  </header>
+
+  <main id="main-layout">
+    <section id="left-panel">
+      <div id="tabs">
+        <button class="tab active" data-tab="invoices">Invoices</button>
+        <button class="tab" data-tab="jobs">Jobs</button>
+        <button class="tab" data-tab="contracts">Contracts</button>
+      </div>
+
+      <div id="filters">
+        <input id="search-box" type="text" placeholder="Search…" />
+      </div>
+
+      <div id="list-container">
+        <div id="list-invoices" class="list active"></div>
+        <div id="list-jobs" class="list"></div>
+        <div id="list-contracts" class="list"></div>
+      </div>
+    </section>
+
+    <section id="right-panel">
+      <div id="detail-panel">
+        <h2 id="detail-title">Details</h2>
+        <form id="detail-form">
+          <div id="detail-fields"></div>
+          <div id="detail-validation"></div>
+          <div id="detail-candidates"></div>
+          <div class="detail-actions">
+            <button type="button" id="btn-save">Save</button>
+            <button type="button" id="btn-open-doc">Open document</button>
+            <button type="button" id="btn-open-folder">Open folder</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="preview-pane">
+        <div id="preview-header">
+          <div id="preview-filename">Preview</div>
+        </div>
+        <div id="preview-body">
+          <div id="preview-loading" class="hidden">Loading…</div>
+          <canvas id="preview-canvas" class="hidden"></canvas>
+          <pre id="preview-text" class="hidden"></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Folder & year setup splash overlay -->
+  <div id="setup-overlay" class="overlay hidden">
+    <div class="overlay-dialog">
+      <h2>Folder &amp; year setup</h2>
+      <p>
+        Create a standard folder structure for Invoices, Jobs and Contracts for a given year
+        under your FIDGET root.
+      </p>
+      <label class="overlay-label">
+        Year
+        <input id="setup-year" type="number" min="2000" max="2100" />
+      </label>
+      <div class="overlay-actions">
+        <button id="setup-create" type="button">Create folders</button>
+        <button id="setup-close" type="button">Close</button>
+      </div>
+      <div id="setup-status"></div>
     </div>
   </div>
-  <div class="row">
-    <button id="btnPick" class="primary">Set root folder</button>
-    <button id="btnRescan">Rescan</button>
-    <button id="btnRefresh">Refresh</button>
-    <button id="btnSettings">Setup / Settings</button>
-  </div>
-</header>
 
-<div class="tabs">
-  <button class="tab active" data-tab="invoices">Invoices</button>
-  <button class="tab" data-tab="assignments">Jobs</button>
-  <button class="tab" data-tab="contracts">Contracts</button>
-</div>
-
-<div class="card row">
-  <span class="pill">Invoices: <b id="invCount">0</b></span>
-  <span class="pill">Jobs: <b id="asCount">0</b></span>
-  <span class="pill">Contracts: <b id="conCount">0</b></span>
-  <span class="muted" id="status"></span>
-</div>
-
-<div class="grid">
-  <div class="card">
-    <div class="row">
-      <label class="muted">Status
-        <select id="filterStatus">
-          <option value="">All</option>
-          <option>New</option><option>Approved</option><option>Sent</option><option>Paid</option>
-          <option>Active</option><option>Closed</option>
-        </select>
-      </label>
-      <label class="muted">Search
-        <input id="search" placeholder="Search anything..."/>
-      </label>
-    </div>
-
-    <table id="tblInvoices">
-      <thead>
-        <tr>
-          <th>InvoiceID</th><th>File</th><th>Vendor</th><th>Amount</th><th>Status</th><th>Job</th><th></th>
-        </tr>
-      </thead>
-      <tbody id="rowsInvoices"></tbody>
-    </table>
-
-    <table id="tblAssignments" class="hidden">
-      <thead>
-        <tr>
-          <th>Job ID</th><th>File</th><th>Vendor</th><th>Expected</th><th>Status</th><th>Invoice</th><th></th>
-        </tr>
-      </thead>
-      <tbody id="rowsAssignments"></tbody>
-    </table>
-
-    <table id="tblContracts" class="hidden">
-      <thead>
-        <tr>
-          <th>ContractID</th><th>File</th><th>Vendor</th><th>Price</th><th>Status</th><th>Dates</th><th></th>
-        </tr>
-      </thead>
-      <tbody id="rowsContracts"></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3 id="editTitle" style="margin-top:0;">Edit invoice</h3>
-    <div class="muted" id="sel">(none selected)</div>
-
-    <div id="editorInvoices">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-        <label class="muted">Vendor<br/><input id="Vendor"/></label>
-        <label class="muted">Invoice #<br/><input id="InvoiceNumber"/></label>
-        <label class="muted">Invoice date<br/><input id="InvoiceDate" placeholder="YYYY-MM-DD"/></label>
-        <label class="muted">Due date<br/><input id="DueDate" placeholder="YYYY-MM-DD"/></label>
-        <label class="muted">Amount<br/><input id="Amount" placeholder="e.g. 1250.00"/></label>
-        <label class="muted">Currency<br/>
-          <select id="Currency"><option>GBP</option><option>EUR</option><option>USD</option></select>
-        </label>
-        <label class="muted">Status<br/>
-          <select id="Status"><option>New</option><option>Approved</option><option>Sent</option><option>Paid</option></select>
-        </label>
-        <label class="muted">Approved?<br/>
-          <select id="Approved"><option>No</option><option>Yes</option></select>
-        </label>
-        <label class="muted">Approved by<br/><input id="ApprovedBy"/></label>
-        <label class="muted">Sent?<br/>
-          <select id="Sent"><option>No</option><option>Yes</option></select>
-        </label>
-        <label class="muted">Job (link will reflect in Jobs tab)<br/>
-          <select id="AssignmentID"></select>
-        </label>
-        <label class="muted">Contract<br/>
-          <select id="ContractID"></select>
-        </label>
-      </div>
-      <label class="muted" style="display:block;margin-top:8px;">Notes<br/>
-        <textarea id="Notes"></textarea>
-      </label>
-
-      <div class="muted" id="invCandidates" style="margin-top:6px;font-size:11px;">
-        Detected totals: <span id="candAmounts"></span><br/>
-        Detected dates: <span id="candDates"></span>
-      </div>
-
-      <div class="muted" style="margin-top:10px;border-top:1px solid #eee;padding-top:8px;">
-        Preview (first lines / or use Open document):
-        <div id="previewBox" style="margin-top:4px;max-height:200px;overflow:auto;white-space:pre-wrap;font-size:11px;border-radius:8px;background:#fafafa;border:1px solid #eee;padding:6px;"></div>
-      </div>
-    </div>
-
-    <div id="editorAssignments" class="hidden">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-        <label class="muted">Vendor<br/><input id="A_Vendor"/></label>
-        <label class="muted">Description<br/><input id="A_Description"/></label>
-        <label class="muted">Amount expected<br/><input id="A_AmountExpected"/></label>
-        <label class="muted">Currency<br/>
-          <select id="A_Currency"><option>GBP</option><option>EUR</option><option>USD</option></select>
-        </label>
-        <label class="muted">Status<br/>
-          <select id="A_Status"><option>New</option><option>Approved</option><option>Sent</option><option>Paid</option></select>
-        </label>
-        <label class="muted">Invoice<br/>
-          <select id="A_InvoiceID"></select>
-        </label>
-        <label class="muted">Contract<br/>
-          <select id="A_ContractID"></select>
-        </label>
-        <label class="muted">Approved by<br/><input id="A_ApprovedBy"/></label>
-      </div>
-      <label class="muted" style="display:block;margin-top:8px;">Notes<br/>
-        <textarea id="A_Notes"></textarea>
-      </label>
-    </div>
-
-    <div id="editorContracts" class="hidden">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-        <label class="muted">Vendor<br/><input id="C_Vendor"/></label>
-        <label class="muted">Price<br/><input id="C_Price"/></label>
-        <label class="muted">Currency<br/>
-          <select id="C_Currency"><option>GBP</option><option>EUR</option><option>USD</option></select>
-        </label>
-        <label class="muted">Status<br/>
-          <select id="C_Status"><option>Active</option><option>Closed</option></select>
-        </label>
-        <label class="muted">Start date<br/><input id="C_StartDate" placeholder="YYYY-MM-DD"/></label>
-        <label class="muted">End date<br/><input id="C_EndDate" placeholder="YYYY-MM-DD"/></label>
-      </div>
-      <label class="muted" style="display:block;margin-top:8px;">Notes<br/>
-        <textarea id="C_Notes"></textarea>
-      </label>
-    </div>
-
-    <div class="row" style="margin-top:10px;">
-      <button id="btnSave" class="primary" disabled>Save (writes to CSV)</button>
-      <button id="btnOpen" disabled>Open document</button>
-    </div>
-    <div class="muted" style="margin-top:6px;">
-      Tip: you can open the CSVs directly in Excel; click Refresh after editing to reload.
-    </div>
-  </div>
-</div>
-
-<div id="settingsOverlay" class="overlay hidden">
-  <div class="overlay-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <div>
-        <h3 style="margin:0;">FIDGET setup &amp; settings</h3>
-        <div class="muted">Set the finance root folder, and generate year/month folder structure.</div>
-      </div>
-      <button id="btnCloseSettings">Close</button>
-    </div>
-    <div class="card" style="margin-top:0;border-radius:12px;">
-      <div class="muted">Current root:</div>
-      <div class="muted" id="settingsRootLabel">(not set)</div>
-      <div class="row" style="margin-top:6px;">
-        <button id="btnSetupPickRoot">Choose root folder…</button>
-      </div>
-      <div class="muted" style="margin-top:6px;">
-        FIDGET expects <b>Invoices</b>, <b>AS</b> (Jobs), and <b>Contracts</b> under the root.
-        CSVs (<code>invoices.csv</code>, <code>assignments.csv</code>, <code>contracts.csv</code>) are automatically created in the root.
-      </div>
-    </div>
-    <div class="card" style="margin-top:10px;border-radius:12px;">
-      <h4 style="margin:0 0 6px 0;">Year &amp; month folders</h4>
-      <div class="row">
-        <label class="muted">Year
-          <select id="setupYear"></select>
-        </label>
-        <button id="btnSetupThisYear">Set up this year's folders</button>
-        <button id="btnSetupYear">Set up selected year</button>
-      </div>
-      <div class="muted" style="margin-top:4px;">
-        Structure created: <code>Invoices/YEAR/MM - Month</code>, <code>AS/YEAR/MM - Month</code>, <code>Contracts/YEAR/MM - Month</code>.
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="renderer.js"></script>
+  <script src="../node_modules/pdfjs-dist/build/pdf.js"></script>
+  <script src="renderer.js"></script>
 </body>
 </html>

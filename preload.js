@@ -1,15 +1,17 @@
 
 const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld("api", {
-  pickRootFolder: () => ipcRenderer.invoke("pick-root-folder"),
-  getRootFolder: () => ipcRenderer.invoke("get-root-folder"),
-  rescan: () => ipcRenderer.invoke("rescan"),
-  getData: (args) => ipcRenderer.invoke("get-data", args),
-  updateRow: (tab, id, patch) => ipcRenderer.invoke("update-row", { tab, id, patch }),
-  getPreview: (tab, id) => ipcRenderer.invoke("get-preview", { tab, id }),
-  getFieldCandidates: (tab, id) => ipcRenderer.invoke("get-field-candidates", { tab, id }),
-  openDocument: (filePath) => ipcRenderer.invoke("open-document", filePath),
-  getYearOptions: () => ipcRenderer.invoke("get-year-options"),
-  setupYearStructure: (year) => ipcRenderer.invoke("setup-year-structure", year)
+contextBridge.exposeInMainWorld("fidget", {
+  getConfig: () => ipcRenderer.invoke("config:get"),
+  askSetRoot: () => ipcRenderer.invoke("config:askSetRoot"),
+  scan: () => ipcRenderer.invoke("scan:run"),
+  saveRecords: (tab, rows) => ipcRenderer.invoke("records:save", { tab, rows }),
+  openPath: (p) => ipcRenderer.invoke("open:path", p),
+  openFolder: (p) => ipcRenderer.invoke("open:folder", p),
+  readFileBytes: (p) => ipcRenderer.invoke("readFileBytes", p),
+  setupYear: (year) => ipcRenderer.invoke("setup:createYear", year),
+  onConfigUpdated: (handler) =>
+    ipcRenderer.on("config-updated", (_evt, cfg) => handler(cfg)),
+  onShowSetup: (handler) =>
+    ipcRenderer.on("show-setup", () => handler()),
 });

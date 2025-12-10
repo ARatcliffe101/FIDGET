@@ -1,46 +1,26 @@
 {
   "name": "fidget",
-  "version": "2.5.0",
-  "description": "FIDGET \u2013 Financial Invoice, Deal & Job Engagement Tracker",
+  "version": "3.3.0",
+  "description": "FIDGET - Financial Invoice, Deal & Job Engagement Tracker",
   "main": "main.js",
-  "private": true,
   "scripts": {
     "start": "electron ."
   },
-  "dependencies": {
-    "chokidar": "^3.6.0",
-    "electron": "^30.0.0",
-    "pdf-parse": "^1.1.1",
-    "tesseract.js": "^5.1.0",
-    "mailparser": "^3.7.2",
-    "@kenjiuno/msgreader": "^1.0.0",
-    "mammoth": "^1.8.0",
-    "xlsx": "^0.18.5"
-  },
+  "author": "",
+  "license": "MIT",
   "devDependencies": {
-    "electron-builder": "^24.13.3"
+    "electron": "^33.0.0"
   },
-  "build": {
-    "appId": "org.fidget.app",
-    "productName": "FIDGET",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "main.js",
-      "preload.js",
-      "ui/**/*"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "ui/assets/FIDGET.png"
-    }
+  "dependencies": {
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^3.11.174",
+    "tesseract.js": "^4.0.2",
+    "sharp": "^0.33.4",
+    "mammoth": "^1.6.0",
+    "xlsx": "^0.18.5",
+    "mailparser": "^3.7.1",
+    "@kenjiuno/msgreader": "^1.15.0",
+    "csv-parse": "^5.5.6",
+    "csv-stringify": "^6.5.1"
   }
 }
