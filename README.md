@@ -15,7 +15,7 @@ FIDGET is a local desktop app that watches a folder of **Invoices**, **Jobs** an
 1. You choose a **root folder** in the app.
 2. FIDGET ensures these subfolders exist under the root:
    - `Invoices`
-   - `AS` (Jobs)
+   - `Jobs`
    - `Contracts`
 3. FIDGET creates (if missing) these CSV files in the root:
    - `invoices.csv`
